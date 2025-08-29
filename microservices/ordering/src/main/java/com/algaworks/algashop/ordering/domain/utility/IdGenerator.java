@@ -13,7 +13,7 @@ public class IdGenerator {
   private IdGenerator() {
   }
 
-  public static UUID generaTimeBasedUUID() {
+  public static UUID generateTimeBasedUUID() {
     return timeBasedEpochGenerator.generate();
   }
 }
