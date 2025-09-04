@@ -1,20 +1,22 @@
 package com.algaworks.algashop.ordering.domain.valueobject;
 
+import com.algaworks.algashop.ordering.domain.exception.ErrorMessages;
+
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Objects;
 
 public record BirthDate(LocalDate value) {
 
-  public BirthDate (LocalDate value){
+  public BirthDate {
     Objects.requireNonNull(value);
     if(value.isAfter(LocalDate.now())){
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException(ErrorMessages.VALIDATION_ERROR_BIRTHDATE_MUST_IN_PAST);
     }
-    this.value = value;
   }
 
   public Integer age(){
-    return LocalDate.now().getYear() - value.getYear();
+    return (int) Duration.between(value, LocalDate.now()).toDays();
   }
 
   @Override
