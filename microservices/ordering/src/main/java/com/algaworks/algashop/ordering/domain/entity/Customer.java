@@ -23,10 +23,11 @@ public class Customer {
   private OffsetDateTime registeredAt;
   private OffsetDateTime archivedAt;
   private LoyaltyPoints loyaltyPoints;
+  private Address address;
 
 
   public Customer(CustomerId id, Fullname fullName, BirthDate birthDate, Email email, Phone phone, Document document,
-                  Boolean promotionNotificationsAloowed, OffsetDateTime registeredAt) {
+                  Boolean promotionNotificationsAloowed, OffsetDateTime registeredAt, Address address) {
     this.setId(id);
     this.setFullName(fullName);
     this.setBirthDate(birthDate);
@@ -37,11 +38,12 @@ public class Customer {
     this.setPromotionNotificationsAloowed(promotionNotificationsAloowed);
     this.setArchived(false);
     this.setLoyaltyPoints(LoyaltyPoints.ZERO);
+    this.setAddress(address);
   }
 
   public Customer(CustomerId id, Fullname fullName, BirthDate birthDate, Email email, Phone phone,
                   Document document, Boolean promotionNotificationsAloowed, Boolean archived,
-                  OffsetDateTime registeredAt, OffsetDateTime archivedAt, LoyaltyPoints loyaltyPoints) {
+                  OffsetDateTime registeredAt, OffsetDateTime archivedAt, LoyaltyPoints loyaltyPoints, Address address) {
     this.setId(id);
     this.setFullName(fullName);
     this.setBirthDate(birthDate);
@@ -53,6 +55,7 @@ public class Customer {
     this.setRegisteredAt(registeredAt);
     this.setArchivedAt(archivedAt);
     this.setLoyaltyPoints(loyaltyPoints);
+    this.setAddress(address);
   }
 
   public Fullname fullName() {
@@ -99,7 +102,8 @@ public class Customer {
     return loyaltyPoints;
   }
 
-  public void addLoyaltyPoints(Integer points) {
+  public Address address() {
+    return address;
   }
 
   public void archive() {
@@ -112,6 +116,8 @@ public class Customer {
     this.setEmail(new Email(UUID.randomUUID() + "@anonymous.com"));
     this.setBirthDate(null);
     this.setPromotionNotificationsAloowed(false);
+    Address.AddressBuilder addressBuilder = this.address().toBuilder();
+    this.setAddress(addressBuilder.number("Anonymized").complement(null).build());
   }
 
   public void addLoyaltyPoints(LoyaltyPoints loyaltyPointsAdded) {
@@ -142,6 +148,11 @@ public class Customer {
   public void changePhone(Phone phone) {
     verifyIfChangeable();
     this.setPhone(phone);
+  }
+
+  public void changeAddress(Address address) {
+    verifyIfChangeable();
+    this.setAddress(address);
   }
 
   private void setId(CustomerId id) {
@@ -199,6 +210,11 @@ public class Customer {
     this.loyaltyPoints = loyaltyPoints;
   }
 
+  private void setAddress(Address address) {
+    Objects.requireNonNull(address);
+    this.address = address;
+  }
+
   private void verifyIfChangeable() {
     if (this.isArchived()) {
       throw new CustomerArchivedException();
@@ -207,7 +223,6 @@ public class Customer {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Customer customer = (Customer) o;
     return Objects.equals(id, customer.id);
