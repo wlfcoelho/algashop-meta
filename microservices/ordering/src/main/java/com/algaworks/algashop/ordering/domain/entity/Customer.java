@@ -2,6 +2,7 @@ package com.algaworks.algashop.ordering.domain.entity;
 
 import com.algaworks.algashop.ordering.domain.exception.CustomerArchivedException;
 import com.algaworks.algashop.ordering.domain.valueobject.*;
+import lombok.Builder;
 
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -26,22 +27,29 @@ public class Customer {
   private Address address;
 
 
-  public Customer(CustomerId id, Fullname fullName, BirthDate birthDate, Email email, Phone phone, Document document,
-                  Boolean promotionNotificationsAloowed, OffsetDateTime registeredAt, Address address) {
-    this.setId(id);
-    this.setFullName(fullName);
-    this.setBirthDate(birthDate);
-    this.setEmail(email);
-    this.setPhone(phone);
-    this.setDocument(document);
-    this.setRegisteredAt(registeredAt);
-    this.setPromotionNotificationsAloowed(promotionNotificationsAloowed);
-    this.setArchived(false);
-    this.setLoyaltyPoints(LoyaltyPoints.ZERO);
-    this.setAddress(address);
+  @Builder(builderClassName = "BrandNewCustomerBuild", builderMethodName = "brandNew")
+  private static Customer createBrandNew(Fullname fullName, BirthDate birthDate, Email email,
+                                  Phone phone, Document document, Boolean promotionNotificationsAloowed,
+                                  Address address) {
+
+    return new Customer(
+            new CustomerId(),
+            fullName,
+            birthDate,
+            email,
+            phone,
+            document,
+            promotionNotificationsAloowed,
+            false,
+            OffsetDateTime.now(),
+            null,
+            LoyaltyPoints.ZERO,
+            address);
+
   }
 
-  public Customer(CustomerId id, Fullname fullName, BirthDate birthDate, Email email, Phone phone,
+  @Builder(builderClassName = "ExistingCustomerBuild", builderMethodName = "existing")
+  private Customer(CustomerId id, Fullname fullName, BirthDate birthDate, Email email, Phone phone,
                   Document document, Boolean promotionNotificationsAloowed, Boolean archived,
                   OffsetDateTime registeredAt, OffsetDateTime archivedAt, LoyaltyPoints loyaltyPoints, Address address) {
     this.setId(id);
@@ -161,7 +169,7 @@ public class Customer {
   }
 
   private void setBirthDate(BirthDate birthDate) {
-    if (birthDate == null){
+    if (birthDate == null) {
       this.birthDate = null;
       return;
     }
@@ -201,7 +209,6 @@ public class Customer {
   }
 
   private void setArchivedAt(OffsetDateTime archivedAt) {
-    Objects.requireNonNull(archivedAt);
     this.archivedAt = archivedAt;
   }
 
