@@ -1,5 +1,6 @@
 package com.algaworks.algashop.ordering.domain.entity;
 
+import com.algaworks.algashop.ordering.domain.exception.OrderInvalidShippingDeliveryDateException;
 import com.algaworks.algashop.ordering.domain.exception.OrderStatusCannotBeChangedException;
 import com.algaworks.algashop.ordering.domain.valueobject.*;
 import com.algaworks.algashop.ordering.domain.valueobject.id.CustomerId;
@@ -130,13 +131,6 @@ public class Order {
     this.changeStatus(OrderStatus.PLACED);
   }
 
-  private void changeStatus(OrderStatus newStatus) {
-    Objects.requireNonNull(newStatus);
-    if(this.status().canNotChangeTo(newStatus)){
-      throw new OrderStatusCannotBeChangedException(this.id, this.status(), newStatus);
-    }
-    this.setStatus(newStatus);
-  }
 
   public boolean isDraft() {
     return OrderStatus.DRAFT.equals(this.status());
@@ -270,6 +264,38 @@ public class Order {
   private void setItems(Set<OrderItem> items) {
     Objects.requireNonNull(items);
     this.items = items;
+  }
+
+  private void changeStatus(OrderStatus newStatus) {
+    Objects.requireNonNull(newStatus);
+    if(this.status().canNotChangeTo(newStatus)){
+      throw new OrderStatusCannotBeChangedException(this.id, this.status(), newStatus);
+    }
+    this.setStatus(newStatus);
+  }
+
+  public void changePaymentMethod(PaymentMethod paymentMethod){
+    Objects.requireNonNull(paymentMethod);
+    this.setPaymentMethod(paymentMethod);
+  }
+
+  public void changeBilling(BillingInfo billingInfo){
+    Objects.requireNonNull(billingInfo);
+    this.setBilling(billingInfo);
+  }
+
+  public void changeShipping(ShippingInfo shippingInfo, Money shippingCost, LocalDate expectedDeliveryDate){
+    Objects.requireNonNull(shippingInfo);
+    Objects.requireNonNull(shippingCost);
+    Objects.requireNonNull(expectedDeliveryDate);
+
+    if(expectedDeliveryDate.isBefore(LocalDate.now())){
+      throw new OrderInvalidShippingDeliveryDateException(this.id);
+    }
+
+    this.setShipping(shippingInfo);
+    this.setShippingCost(shippingCost);
+    this.setExpectedDeliveryDate(expectedDeliveryDate);
   }
 
   @Override

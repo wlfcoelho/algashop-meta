@@ -14,7 +14,7 @@ public class CustomerTestDataBuilder {
 
   public static Customer.BrandNewCustomerBuild brandNewCustomer(){
     return Customer.brandNew()
-            .fullName(new Fullname("John","Doe"))
+            .fullName(new FullName("John","Doe"))
             .birthDate(new BirthDate(LocalDate.of(1991, 7,5)))
             .email(new Email("johndoe@email.com"))
             .phone(new Phone("478-256-2604"))
@@ -38,7 +38,7 @@ public class CustomerTestDataBuilder {
             .promotionNotificationsAloowed(true)
             .archived(false)
             .archivedAt(null)
-            .fullName(new Fullname("John","Doe"))
+            .fullName(new FullName("John","Doe"))
             .birthDate(new BirthDate(LocalDate.of(1991, 7,5)))
             .email(new Email("johndoe@email.com"))
             .phone(new Phone("478-256-2604"))
@@ -59,7 +59,7 @@ public class CustomerTestDataBuilder {
   public static Customer.ExistingCustomerBuild existingAnonymizedCustomer() {
     return Customer.existing()
             .id(new CustomerId())
-            .fullName(new Fullname("Anonymous", "Anonymous"))
+            .fullName(new FullName("Anonymous", "Anonymous"))
             .birthDate(null)
             .email(new Email("anonymous@anonymous.com"))
             .phone(new Phone("000-000-0000"))

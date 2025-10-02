@@ -2,14 +2,14 @@ package com.algaworks.algashop.ordering.domain.valueobject;
 
 import java.util.Objects;
 
-public record Fullname(String firstName, String lastName) {
+public record FullName(String firstName, String lastName) {
 
-  public Fullname(String firstName, String lastName){
+  public FullName(String firstName, String lastName){
     Objects.requireNonNull(firstName);
     Objects.requireNonNull(lastName);
-
     if(firstName.isBlank()){
       throw new IllegalArgumentException();
+
     }
 
     if(lastName.isBlank()){

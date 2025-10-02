@@ -15,7 +15,7 @@ import static com.algaworks.algashop.ordering.domain.exception.ErrorMessages.VAL
 public class Customer {
 
   private CustomerId id;
-  private Fullname fullName;
+  private FullName fullName;
   private BirthDate birthDate;
   private Email email;
   private Phone phone;
@@ -29,7 +29,7 @@ public class Customer {
 
 
   @Builder(builderClassName = "BrandNewCustomerBuild", builderMethodName = "brandNew")
-  private static Customer createBrandNew(Fullname fullName, BirthDate birthDate, Email email,
+  private static Customer createBrandNew(FullName fullName, BirthDate birthDate, Email email,
                                   Phone phone, Document document, Boolean promotionNotificationsAloowed,
                                   Address address) {
 
@@ -50,7 +50,7 @@ public class Customer {
   }
 
   @Builder(builderClassName = "ExistingCustomerBuild", builderMethodName = "existing")
-  private Customer(CustomerId id, Fullname fullName, BirthDate birthDate, Email email, Phone phone,
+  private Customer(CustomerId id, FullName fullName, BirthDate birthDate, Email email, Phone phone,
                   Document document, Boolean promotionNotificationsAloowed, Boolean archived,
                   OffsetDateTime registeredAt, OffsetDateTime archivedAt, LoyaltyPoints loyaltyPoints, Address address) {
     this.setId(id);
@@ -67,7 +67,7 @@ public class Customer {
     this.setAddress(address);
   }
 
-  public Fullname fullName() {
+  public FullName fullName() {
     return fullName;
   }
 
@@ -119,7 +119,7 @@ public class Customer {
     verifyIfChangeable();
     this.setArchived(true);
     this.setArchivedAt(OffsetDateTime.now());
-    this.setFullName(new Fullname("Anonymous", "Anonymous"));
+    this.setFullName(new FullName("Anonymous", "Anonymous"));
     this.setPhone(new Phone("000-000-0000"));
     this.setDocument(new Document("000-00-0000"));
     this.setEmail(new Email(UUID.randomUUID() + "@anonymous.com"));
@@ -144,7 +144,7 @@ public class Customer {
     this.setPromotionNotificationsAloowed(false);
   }
 
-  public void changeName(Fullname fullName) {
+  public void changeName(FullName fullName) {
     verifyIfChangeable();
     this.setFullName(fullName);
   }
@@ -177,7 +177,7 @@ public class Customer {
     this.birthDate = birthDate;
   }
 
-  private void setFullName(Fullname fullName) {
+  private void setFullName(FullName fullName) {
     Objects.requireNonNull(fullName, VALIDATION_ERROR_FULLNAME_IS_NULL);
     this.fullName = fullName;
   }
