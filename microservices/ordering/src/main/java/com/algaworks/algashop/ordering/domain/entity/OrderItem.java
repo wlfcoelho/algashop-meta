@@ -8,6 +8,7 @@ import com.algaworks.algashop.ordering.domain.valueobject.id.OrderItemId;
 import com.algaworks.algashop.ordering.domain.valueobject.id.ProductId;
 import lombok.Builder;
 
+import javax.lang.model.element.QualifiedNameable;
 import java.util.Objects;
 
 public class OrderItem {
@@ -82,6 +83,12 @@ public class OrderItem {
 
   public Money totalAmount() {
     return totalAmount;
+  }
+
+  void changeQuantity(Quantity quantity){
+    Objects.requireNonNull(quantity);
+    this.setQuantity(quantity);
+    this.recalculateTotals();
   }
 
   private void recalculateTotals() {

@@ -1,11 +1,13 @@
 package com.algaworks.algashop.ordering.domain.entity;
 
 import com.algaworks.algashop.ordering.domain.exception.OrderCannotBePlacedException;
+import com.algaworks.algashop.ordering.domain.exception.OrderDoesNotContainItemException;
 import com.algaworks.algashop.ordering.domain.exception.OrderInvalidShippingDeliveryDateException;
 import com.algaworks.algashop.ordering.domain.exception.OrderStatusCannotBeChangedException;
 import com.algaworks.algashop.ordering.domain.valueobject.*;
 import com.algaworks.algashop.ordering.domain.valueobject.id.CustomerId;
 import com.algaworks.algashop.ordering.domain.valueobject.id.OrderId;
+import com.algaworks.algashop.ordering.domain.valueobject.id.OrderItemId;
 import com.algaworks.algashop.ordering.domain.valueobject.id.ProductId;
 import lombok.Builder;
 
@@ -132,6 +134,24 @@ public class Order {
 
     this.changeStatus(OrderStatus.PLACED);
     this.setPlacedAt(OffsetDateTime.now());
+  }
+  
+  public void changeItemQuantity(OrderItemId orderItemId, Quantity quantity){
+    Objects.requireNonNull(orderItemId);
+    Objects.requireNonNull(quantity);
+    
+    OrderItem orderItem = this.findOrderItem(orderItemId);
+    orderItem.changeQuantity(quantity);
+    
+    this.recalculateTotals();
+  }
+
+  private OrderItem findOrderItem(OrderItemId orderItemId) {
+    Objects.requireNonNull(orderItemId);
+    return this.items().stream()
+            .filter(item -> item.id().equals(orderItemId))
+            .findFirst()
+            .orElseThrow(() -> new OrderDoesNotContainItemException(this.id(), orderItemId));
   }
 
   public void markAsPaid() {
