@@ -16,14 +16,33 @@ import java.util.Set;
 class OrderTest {
 
   @Test
-  public void shouldGenerate() {
-    Order order = Order.draft(new CustomerId());
+  public void shouldGenerateDraftOrder() {
+    CustomerId customerId = new CustomerId();
+    Order order = Order.draft(customerId);
+
+    Assertions.assertWith(order,
+            o-> Assertions.assertThat(o.id()).isNotNull(),
+            o-> Assertions.assertThat(o.customerId()).isEqualTo(customerId),
+            o-> Assertions.assertThat(o.totalAmount()).isEqualTo(Money.ZERO),
+            o-> Assertions.assertThat(o.totalItems()).isEqualTo(Quantity.ZERO),
+            o-> Assertions.assertThat(o.isDraft()).isTrue(),
+            o-> Assertions.assertThat(o.items()).isEmpty(),
+
+            o -> Assertions.assertThat(o.placedAt()).isNull(),
+            o -> Assertions.assertThat(o.paidAt()).isNull(),
+            o -> Assertions.assertThat(o.canceledAt()).isNull(),
+            o -> Assertions.assertThat(o.readyAt()).isNull(),
+            o -> Assertions.assertThat(o.billing()).isNull(),
+            o -> Assertions.assertThat(o.shipping()).isNull(),
+            o -> Assertions.assertThat(o.paymentMethod()).isNull()
+
+    );
   }
 
   @Test
   public void shouldAddItem() {
     Order order = Order.draft(new CustomerId());
-    Product product = ProductTestdataBuilder.aProduct().build();
+    Product product = ProductTestDataBuilder.aProduct().build();
     ProductId productId = product.id();
 
     order.addItem(
@@ -47,7 +66,7 @@ class OrderTest {
   @Test
   public void shouldGenerateExceptionWhenTryToChangeItemSet() {
     Order order = Order.draft(new CustomerId());
-    Product product = ProductTestdataBuilder.aProductAltMousePad().build();
+    Product product = ProductTestDataBuilder.aProductAltMousePad().build();
 
     order.addItem(
             product,
@@ -66,12 +85,12 @@ class OrderTest {
     ProductId productId = new ProductId();
 
     order.addItem(
-            ProductTestdataBuilder.aProductAltMousePad().build(),
+            ProductTestDataBuilder.aProductAltMousePad().build(),
             new Quantity(2)
     );
 
     order.addItem(
-            ProductTestdataBuilder.aProduct().build(),
+            ProductTestDataBuilder.aProduct().build(),
             new Quantity(1)
     );
 
@@ -94,34 +113,13 @@ class OrderTest {
   }
 
   @Test
-  public void givenDraftOrder_whenChangeBillingInfo_shouldAllowChange() {
-    Address address = Address.builder()
-            .street("Bourbon Street")
-            .number("1234")
-            .neighborhood("North Ville")
-            .complement("apt. 11")
-            .city("Montfort")
-            .state("South Carolina")
-            .zipCode(new ZipCode("79911")).build();
-
-    BillingInfo billingInfo = BillingInfo.builder()
-            .address(address)
-            .document(new Document("225-09-1992"))
-            .phone(new Phone("123-111-9911"))
-            .fullName(new FullName("John", "Doe"))
-            .build();
+  public void givenDraftOrder_whenChangeBilling_shouldAllowChange() {
+    Billing billing = OrderTestDataBuilder.aBilling();
 
     Order order = Order.draft(new CustomerId());
-    order.changeBilling(billingInfo);
+    order.changeBilling(billing);
 
-    BillingInfo expectedBillingInfo = BillingInfo.builder()
-            .address(address)
-            .document(new Document("225-09-1992"))
-            .phone(new Phone("123-111-9911"))
-            .fullName(new FullName("John", "Doe"))
-            .build();
-
-    Assertions.assertThat(order.billing()).isEqualTo(expectedBillingInfo);
+    Assertions.assertThat(order.billing()).isEqualTo(billing);
   }
 
   @Test
@@ -159,7 +157,7 @@ class OrderTest {
     Order order = Order.draft(new CustomerId());
 
     order.addItem(
-            ProductTestdataBuilder.aProductAltMousePad().build(),
+            ProductTestDataBuilder.aProductAltMousePad().build(),
             new Quantity(3)
     );
 
@@ -178,7 +176,7 @@ class OrderTest {
     Order order = Order.draft(new CustomerId());
 
     ThrowableAssert.ThrowingCallable addItemTask = () -> order.addItem(
-            ProductTestdataBuilder.aProductUnavailable().build(),
+            ProductTestDataBuilder.aProductUnavailable().build(),
             new Quantity(1)
     );
 

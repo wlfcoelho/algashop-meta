@@ -5,9 +5,9 @@ import com.algaworks.algashop.ordering.domain.valueobject.Product;
 import com.algaworks.algashop.ordering.domain.valueobject.ProductName;
 import com.algaworks.algashop.ordering.domain.valueobject.id.ProductId;
 
-public class ProductTestdataBuilder {
+public class ProductTestDataBuilder {
 
-  private ProductTestdataBuilder() {
+  private ProductTestDataBuilder() {
   }
 
   public static Product.ProductBuilder aProduct() {

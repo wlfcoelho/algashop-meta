@@ -13,7 +13,7 @@ public class OrderTestDataBuilder {
 
 
   private Shipping shipping = aShipping();
-  private BillingInfo billingInfo = aBillingInfo();
+  private Billing billing = aBilling();
 
   private boolean withItems = true;
 
@@ -30,13 +30,13 @@ public class OrderTestDataBuilder {
   public Order build() {
     Order order = Order.draft(customerId);
     order.changeShipping(shipping);
-    order.changeBilling(billingInfo);
+    order.changeBilling(billing);
     order.changePaymentMethod(paymentMethod);
 
     if (withItems) {
-      order.addItem(ProductTestdataBuilder.aProduct().build(), new Quantity(2));
+      order.addItem(ProductTestDataBuilder.aProduct().build(), new Quantity(2));
 
-      order.addItem(ProductTestdataBuilder.aProductAltRamMemory().build(), new Quantity(1));
+      order.addItem(ProductTestDataBuilder.aProductAltRamMemory().build(), new Quantity(1));
     }
 
     switch (this.status) {
@@ -58,11 +58,12 @@ public class OrderTestDataBuilder {
     return order;
   }
 
-  public static BillingInfo aBillingInfo() {
-    return BillingInfo.builder()
+  public static Billing aBilling() {
+    return Billing.builder()
             .address(anAddress())
             .document(new Document("225-09-1992"))
             .phone(new Phone("123-111-9911"))
+            .email(new Email("will.algaworks@gmail.com"))
             .fullName(new FullName("John", "Doe")).build();
   }
 
@@ -122,13 +123,13 @@ public class OrderTestDataBuilder {
     return this;
   }
 
-  public OrderTestDataBuilder shippingInfo(Shipping shipping) {
+  public OrderTestDataBuilder shipping(Shipping shipping) {
     this.shipping = shipping;
     return this;
   }
 
-  public OrderTestDataBuilder billingInfo(BillingInfo billingInfo) {
-    this.billingInfo = billingInfo;
+  public OrderTestDataBuilder billing(Billing billing) {
+    this.billing = billing;
     return this;
   }
 
