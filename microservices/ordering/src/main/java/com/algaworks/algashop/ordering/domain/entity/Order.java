@@ -1,12 +1,13 @@
 package com.algaworks.algashop.ordering.domain.entity;
 
 import com.algaworks.algashop.ordering.domain.exception.OrderCannotBePlacedException;
+import com.algaworks.algashop.ordering.domain.exception.OrderDoesNotContainItemException;
 import com.algaworks.algashop.ordering.domain.exception.OrderInvalidShippingDeliveryDateException;
 import com.algaworks.algashop.ordering.domain.exception.OrderStatusCannotBeChangedException;
 import com.algaworks.algashop.ordering.domain.valueobject.*;
 import com.algaworks.algashop.ordering.domain.valueobject.id.CustomerId;
 import com.algaworks.algashop.ordering.domain.valueobject.id.OrderId;
-import com.algaworks.algashop.ordering.domain.valueobject.id.ProductId;
+import com.algaworks.algashop.ordering.domain.valueobject.id.OrderItemId;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -31,13 +32,10 @@ public class Order {
   private OffsetDateTime readyAt;
 
   private BillingInfo billing;
-  private ShippingInfo shipping;
+  private Shipping shipping;
 
   private OrderStatus status;
   private PaymentMethod paymentMethod;
-
-  private Money shippingCost;
-  private LocalDate expectedDeliveryDate;
 
   private Set<OrderItem> items;
 
@@ -46,9 +44,8 @@ public class Order {
                Money totalAmount, Quantity totalItems,
                OffsetDateTime placedAt, OffsetDateTime paidAt,
                OffsetDateTime canceledAt, OffsetDateTime readyAt,
-               BillingInfo billing, ShippingInfo shipping,
+               BillingInfo billing, Shipping shipping,
                OrderStatus status, PaymentMethod paymentMethod,
-               Money shippingCost, LocalDate expectedDeliveryDate,
                Set<OrderItem> items) {
     this.setId(id);
     this.setCustomerId(customerId);
@@ -62,8 +59,6 @@ public class Order {
     this.setShipping(shipping);
     this.setStatus(status);
     this.setPaymentMethod(paymentMethod);
-    this.setShippingCost(shippingCost);
-    this.setExpectedDeliveryDate(expectedDeliveryDate);
     this.setItems(items);
   }
 
@@ -81,21 +76,20 @@ public class Order {
             null,
             OrderStatus.DRAFT,
             null,
-            null,
-            null,
             new HashSet<>()
     );
   }
 
-  public void addItem(ProductId productId, ProductName productName,
-                      Money price, Quantity quantity) {
+  public void addItem(Product product, Quantity quantity) {
+    Objects.requireNonNull(product);
+    Objects.requireNonNull(quantity);
+
+    product.checkOutofStock();
 
     OrderItem orderItem = OrderItem.brandNew()
             .orderId(this.id())
-            .price(price)
+            .product(product)
             .quantity(quantity)
-            .productName(productName)
-            .productId(productId)
             .build();
 
     if (this.items == null) {
@@ -115,10 +109,10 @@ public class Order {
             .reduce(0, Integer::sum);
 
     BigDecimal shippingCost;
-    if(this.shippingCost() == null){
+    if(this.shipping() == null){
       shippingCost = BigDecimal.ZERO;
     } else{
-      shippingCost = this.shippingCost().value();
+      shippingCost = this.shipping().cost().value();
     }
 
     BigDecimal totalAmount = totalItemsAmount.add(shippingCost);
@@ -132,6 +126,24 @@ public class Order {
 
     this.changeStatus(OrderStatus.PLACED);
     this.setPlacedAt(OffsetDateTime.now());
+  }
+  
+  public void changeItemQuantity(OrderItemId orderItemId, Quantity quantity){
+    Objects.requireNonNull(orderItemId);
+    Objects.requireNonNull(quantity);
+    
+    OrderItem orderItem = this.findOrderItem(orderItemId);
+    orderItem.changeQuantity(quantity);
+    
+    this.recalculateTotals();
+  }
+
+  private OrderItem findOrderItem(OrderItemId orderItemId) {
+    Objects.requireNonNull(orderItemId);
+    return this.items().stream()
+            .filter(item -> item.id().equals(orderItemId))
+            .findFirst()
+            .orElseThrow(() -> new OrderDoesNotContainItemException(this.id(), orderItemId));
   }
 
   public void markAsPaid() {
@@ -183,7 +195,7 @@ public class Order {
     return billing;
   }
 
-  public ShippingInfo shipping() {
+  public Shipping shipping() {
     return shipping;
   }
 
@@ -193,14 +205,6 @@ public class Order {
 
   public PaymentMethod paymentMethod() {
     return paymentMethod;
-  }
-
-  public Money shippingCost() {
-    return shippingCost;
-  }
-
-  public LocalDate expectedDeliveryDate() {
-    return expectedDeliveryDate;
   }
 
   public Set<OrderItem> items() {
@@ -248,7 +252,7 @@ public class Order {
     this.billing = billing;
   }
 
-  private void setShipping(ShippingInfo shipping) {
+  private void setShipping(Shipping shipping) {
     this.shipping = shipping;
   }
 
@@ -259,14 +263,6 @@ public class Order {
 
   private void setPaymentMethod(PaymentMethod paymentMethod) {
     this.paymentMethod = paymentMethod;
-  }
-
-  private void setShippingCost(Money shippingCost) {
-    this.shippingCost = shippingCost;
-  }
-
-  private void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
-    this.expectedDeliveryDate = expectedDeliveryDate;
   }
 
   private void setItems(Set<OrderItem> items) {
@@ -302,29 +298,20 @@ public class Order {
     if (this.items() == null || this.items().isEmpty()) {
       throw OrderCannotBePlacedException.noItems(this.id);
     }
-    if (this.shippingCost() == null) {
-      throw OrderCannotBePlacedException.invalidShippingCost(this.id);
-    }
-    if (this.expectedDeliveryDate() == null || this.expectedDeliveryDate().isBefore(LocalDate.now())) {
-      throw OrderCannotBePlacedException.invalidDeliveryDate(this.id);
-    }
     if (this.paymentMethod() == null) {
       throw OrderCannotBePlacedException.noPaymentMethod(this.id);
     }
   }
 
-  public void changeShipping(ShippingInfo shippingInfo, Money shippingCost, LocalDate expectedDeliveryDate){
-    Objects.requireNonNull(shippingInfo);
-    Objects.requireNonNull(shippingCost);
-    Objects.requireNonNull(expectedDeliveryDate);
+  public void changeShipping(Shipping newShipping){
+    Objects.requireNonNull(newShipping);
 
-    if(expectedDeliveryDate.isBefore(LocalDate.now())){
+    if(newShipping.expectedDate().isBefore(LocalDate.now())){
       throw new OrderInvalidShippingDeliveryDateException(this.id);
     }
 
-    this.setShipping(shippingInfo);
-    this.setShippingCost(shippingCost);
-    this.setExpectedDeliveryDate(expectedDeliveryDate);
+    this.setShipping(newShipping);
+    this.recalculateTotals();
   }
 
   @Override
