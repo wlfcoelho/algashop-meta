@@ -113,6 +113,21 @@ class OrderTest {
   }
 
   @Test
+  public void givenDraftOrder_whenPlace_shouldChangeToReady() {
+    Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.PAID).build();
+    order.markAsReady();
+    Assertions.assertThat(order.isReady()).isTrue();
+  }
+
+  @Test
+  public void givenPlacedOrder_whenTryToReady_shouldGenerateException() {
+    Order order = OrderTestDataBuilder.anOrder().status(OrderStatus.DRAFT).build();
+    Assertions.assertThatExceptionOfType(OrderStatusCannotBeChangedException.class)
+            .isThrownBy(order::markAsReady);
+  }
+
+
+  @Test
   public void givenDraftOrder_whenChangeBilling_shouldAllowChange() {
     Billing billing = OrderTestDataBuilder.aBilling();
 

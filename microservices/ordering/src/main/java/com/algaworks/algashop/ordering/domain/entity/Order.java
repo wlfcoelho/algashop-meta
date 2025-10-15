@@ -126,7 +126,13 @@ public class Order {
     this.changeStatus(OrderStatus.PLACED);
     this.setPlacedAt(OffsetDateTime.now());
   }
-  
+
+  public void markAsReady(){
+
+    this.changeStatus(OrderStatus.READY);
+    this.setPlacedAt(OffsetDateTime.now());
+  }
+
   public void changeItemQuantity(OrderItemId orderItemId, Quantity quantity){
     Objects.requireNonNull(orderItemId);
     Objects.requireNonNull(quantity);
@@ -164,6 +170,10 @@ public class Order {
 
   public boolean isPlaced() {
     return OrderStatus.PLACED.equals(this.status());
+  }
+
+  public boolean isReady() {
+    return OrderStatus.READY.equals(this.status());
   }
 
   public OrderId id() {
