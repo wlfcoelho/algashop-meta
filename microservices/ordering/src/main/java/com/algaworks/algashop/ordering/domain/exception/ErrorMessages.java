@@ -1,5 +1,7 @@
 package com.algaworks.algashop.ordering.domain.exception;
 
+import java.util.Locale;
+
 public class ErrorMessages {
 
   public static final String VALIDATION_ERROR_EMAIL_IS_INVALID = "Email is invalid";
@@ -27,4 +29,10 @@ public class ErrorMessages {
   public static final String ERROR_PRODUCT_IS_OUT_OF_STOCK = "Product %s is out of stock";
 
   public static final String ERROR_ORDER_CANNOT_BE_EDITED = "Order %s with status %s cannot be edited";
+
+  public static final String ERROR_SHOPPING_CART_DOES_NOT_CONTAIN_ITEM = "Shopping Cart %s does not contain item %s";
+
+  public static final String ERROR_SHOPPING_CART_DOES_NOT_CONTAIN_PRODUCT = "Shopping Cart %s does not contain product %s";
+
+  public static final String ERROR_SHOPPING_CART_ITEM_IMCOMPATIBLE_PRODUCT =  "Shopping Cart %s cannot be updated, incompatible product %s";
 }
