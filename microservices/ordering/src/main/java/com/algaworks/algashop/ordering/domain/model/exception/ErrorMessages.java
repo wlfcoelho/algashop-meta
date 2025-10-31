@@ -2,6 +2,8 @@ package com.algaworks.algashop.ordering.domain.model.exception;
 
 import java.util.Locale;
 
+import java.util.Locale;
+
 public class ErrorMessages {
 
   public static final String VALIDATION_ERROR_EMAIL_IS_INVALID = "Email is invalid";
