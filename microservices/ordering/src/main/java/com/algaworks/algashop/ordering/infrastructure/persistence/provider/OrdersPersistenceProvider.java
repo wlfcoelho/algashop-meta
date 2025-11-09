@@ -7,6 +7,7 @@ import com.algaworks.algashop.ordering.infrastructure.persistence.assembler.Orde
 import com.algaworks.algashop.ordering.infrastructure.persistence.disassembler.OrderPersistenceEntityDisassembler;
 import com.algaworks.algashop.ordering.infrastructure.persistence.entity.OrderPersistenceEntity;
 import com.algaworks.algashop.ordering.infrastructure.persistence.repository.OrderPersistenceEntityRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,8 @@ public class OrdersPersistenceProvider implements Orders {
   private final OrderPersistenceEntityRepository orderRepository;
   private final OrderPersistenceEntityAssembler orderAssembler;
   private final OrderPersistenceEntityDisassembler orderDisassembler;
+
+  private final EntityManager entityManager;
 
   @Override
   public Optional<Order> ofId(OrderId orderId) {
@@ -49,12 +52,15 @@ public class OrdersPersistenceProvider implements Orders {
 
   private void update(Order aggregateRoot, OrderPersistenceEntity persistenceEntity) {
     persistenceEntity = orderAssembler.merge(persistenceEntity, aggregateRoot);
-    orderRepository.saveAndFlush(persistenceEntity);
+    entityManager.detach(persistenceEntity);
+    persistenceEntity = orderRepository.saveAndFlush(persistenceEntity);
+    aggregateRoot.setVersion(persistenceEntity.getVersion());
   }
 
   private void insert(Order aggregateRoot) {
     OrderPersistenceEntity persistenceEntity = orderAssembler.fromDomain(aggregateRoot);
     orderRepository.saveAndFlush(persistenceEntity);
+    aggregateRoot.setVersion(persistenceEntity.getVersion());
   }
 
   @Override
