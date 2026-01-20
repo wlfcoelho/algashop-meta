@@ -6,7 +6,7 @@ import com.algaworks.algashop.ordering.domain.model.valueobject.Billing;
 import com.algaworks.algashop.ordering.domain.model.valueobject.Recipient;
 import com.algaworks.algashop.ordering.domain.model.valueobject.Shipping;
 import com.algaworks.algashop.ordering.infrastructure.persistence.embeddable.AddressEmbeddable;
-import com.algaworks.algashop.ordering.infrastructure.persistence.embeddable.BillingEmeddable;
+import com.algaworks.algashop.ordering.infrastructure.persistence.embeddable.BillingEmbeddable;
 import com.algaworks.algashop.ordering.infrastructure.persistence.embeddable.RecipientEmbeddable;
 import com.algaworks.algashop.ordering.infrastructure.persistence.embeddable.ShippingEmbeddable;
 import com.algaworks.algashop.ordering.infrastructure.persistence.entity.OrderPersistenceEntity;
@@ -34,13 +34,13 @@ public class OrderPersistenceEntityAssembler {
     return orderPersistenceEntity;
   }
 
-  private BillingEmeddable toBillingEmbeddable(Billing billing){
+  private BillingEmbeddable toBillingEmbeddable(Billing billing){
 
     if(billing == null){
       return null;
     }
 
-    return BillingEmeddable.builder()
+    return BillingEmbeddable.builder()
             .firstName(billing.fullName().firstName())
             .lastName(billing.fullName().lastName())
             .document(billing.document().value())

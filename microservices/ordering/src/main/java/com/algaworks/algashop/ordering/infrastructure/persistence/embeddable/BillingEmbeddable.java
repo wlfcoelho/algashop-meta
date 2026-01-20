@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Data
-public class BillingEmeddable {
+public class BillingEmbeddable {
 
   private String firstName;
   private String lastName;

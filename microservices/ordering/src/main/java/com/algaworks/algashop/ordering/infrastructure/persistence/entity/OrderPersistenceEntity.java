@@ -1,7 +1,7 @@
 package com.algaworks.algashop.ordering.infrastructure.persistence.entity;
 
 
-import com.algaworks.algashop.ordering.infrastructure.persistence.embeddable.BillingEmeddable;
+import com.algaworks.algashop.ordering.infrastructure.persistence.embeddable.BillingEmbeddable;
 import com.algaworks.algashop.ordering.infrastructure.persistence.embeddable.ShippingEmbeddable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -63,7 +63,7 @@ public class OrderPersistenceEntity {
           @AttributeOverride(name = "address.state", column = @Column(name = "billing_address_state")),
           @AttributeOverride(name = "address.zipCode", column = @Column(name = "billing_address_zipCode"))
       })
-  private BillingEmeddable billing;
+  private BillingEmbeddable billing;
 
   @Embedded
   @AttributeOverrides({
