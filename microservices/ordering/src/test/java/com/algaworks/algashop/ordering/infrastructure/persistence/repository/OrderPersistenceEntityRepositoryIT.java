@@ -35,6 +35,19 @@ class OrderPersistenceEntityRepositoryIT {
   }
 
   @Test
+  public void shouldPersist(){
+    OrderPersistenceEntity entity = OrderPersistenceEntityTestDataBuilder.existingOrder().build();
+
+    orderPersistenceEntityRepository.saveAndFlush(entity);
+
+    Assertions.assertThat(orderPersistenceEntityRepository.existsById(entity.getId())).isTrue();
+
+    OrderPersistenceEntity savedEntity = orderPersistenceEntityRepository.findById(entity.getId()).orElseThrow();
+
+    Assertions.assertThat(savedEntity.getItems()).isNotEmpty();
+  }
+
+  @Test
   @DisplayName("===== Should count orders =====")
   public void shouldCount(){
     long ordersCount = orderPersistenceEntityRepository.count();
